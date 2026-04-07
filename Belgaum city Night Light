@@ -25,7 +25,7 @@ boundary_outline = ee.Image().paint(roi, 0, 2).visualize(palette=['#ffffff'], op
 
 collection = ee.ImageCollection("NOAA/VIIRS/DNB/MONTHLY_V1/VCMCFG") \
     .filterBounds(roi) \
-    .filterDate('2024-01-01', '2024-12-31')
+    .filterDate('2025-01-01', '2025-12-31')
 
 def create_final_frame(img):
     # 1. Process NTL Data
