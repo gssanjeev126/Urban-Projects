@@ -1,7 +1,7 @@
 # Belgaum Smart City: Nighttime Light (NTL) & Energy Analytics 
 
 ## Author
-Sanjeev Gadad. (Geospatial Insights, Climate Resilience, Civil Engineer)
+Sanjeev Gadad. (Specialist - Geospatial Insights, Climate Resilience, Civil Engineer)
 
 ## Overview
 This project provides a High-Resolution Temporal Analysis of Belgaum’s urban energy footprint using satellite-derived Nighttime Lights (NTL). By leveraging the NOAA VIIRS (DNB) sensor, we translate raw spectral radiance into actionable municipal metrics, including Grid Consumption (kWh), Fiscal Expenditure (Millions INR), and Carbon Emissions (kg CO2).
