@@ -31,7 +31,8 @@ Cost is calculated based on the standard HESCOM LT-6 (Commercial/Streetlighting)
 Cost (Million Rupees)​ = E (kWh) × 7.00 / 1,000,000
  
 3. Environmental Impact (kg CO2)
-CO2 (kg) = E (kWh) × 0.8 (kg/KWh)
+
+CO2 = E (kWh) × 0.8 (kg/KWh)
 
 ## Data Acquisition: 
 Google Earth Engine (EE) API for the NOAA/VIIRS/DNB/MONTHLY_V1/VCMCFG collection.
