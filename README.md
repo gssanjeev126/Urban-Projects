@@ -1,62 +1,46 @@
-# Belgaum Smart City: Nighttime Light (NTL) & Energy Analytics 
+# Decentralized Solar Energy Transitions: Belagavi's potential 
+##Strategic City Planning Tool
 
 ## Author
 Sanjeev Gadad. (Specialist - Geospatial Insights, Climate Resilience, Civil Engineer)
 
 ## Overview
-This project provides a High-Resolution Temporal Analysis of Belgaum’s urban energy footprint using satellite-derived Nighttime Lights (NTL). By leveraging the NOAA VIIRS (DNB) sensor, we translate raw spectral radiance into actionable municipal metrics, including Grid Consumption (kWh), Fiscal Expenditure (Millions INR), and Carbon Emissions (kg CO2).
+A city’s true energy potential often lies hidden in plain sight. Project Sun-Drive is an interactive, data-driven dashboard designed to help residential planners and homeowners visualize the impact of solar adoption. By bridging the gap between meteorological data and financial forecasting, it provides a transparent look at the Net Investment, Payback Period, and Carbon Sequestration potential of a single home or an entire community.
 
-The goal is to provide Belgaum Smart City planners with a visual and data-driven baseline for identifying high-density energy zones and potential areas for solar street-lighting transitions.
+## Technical Fundamentals
 
-## Performance Dashboard (Interactive)
-The project generates an interactive Area-Spline Hybrid Dashboard that tracks the relationship between urban brightness and fiscal cost.
+The dashboard operates on a Quantized Physics Logic. Unlike generic calculators, it enforces real-world constraints:
+The 60% Rule: Only 60% of total rooftop area is considered "usable" for panels (accounting for walking space, shading, and tank placement).
+Integer Capacity Scaling: Solar capacity is rounded to the nearest integer kW based on a standard 100 sq.ft footprint per 1 kW system.
+Dynamic Response UI: Built using a JavaScript-in-HTML architecture, allowing for instantaneous recalculation without a Python backend—ideal for hosting on GitHub Pages.
 
-Blue Zone: Total Grid Demand (kWh)
+## Data & Assumptions
+### Meteorological Foundation
+Location: Belagavi, India.
+Annual Yield: Baseline of 1400 kWh/year per 1 kW installed.
+Insolation Weights: Factored for the Monsoon Dip (June–August), where generation drops by ~60-65% due to cloud cover.
+### Financial Parameters (2025-26 Estimates)
+Direct Savings (Self-Consumption): INR 7.50 per unit.
+HESCOM Export (Net Metering): INR 2.30 per unit.
+Degradation: 0.5% annual loss in panel efficiency.
+Tariff Hike: Assumed 3% annual increase in electricity rates.
 
-Red Dotted Line: Carbon Footprint (kg CO2)
+### Subsidy Structure (PM Surya Ghar)
+1-2 kW: INR 30,000 per kW.
 
-Data Callouts: Real-time cost estimation in Millions of INR (M).
+3 kW+: Capped at INR 78,000.
 
-## Mathematical Framework
-The analysis follows a linear transformation model to convert satellite radiance into municipal energy units:
-
-1. Energy Estimation (kWh)
-The total monthly energy is derived from the Sum of Radiance (SoR) over the Region of Interest (ROI):
-
-E(kWh) = ∑(R × A) × κ
-Where:
-R = Monthly Average Radiance (nW/cm2/sr)
-A = Pixel Area (m2)
-κ = Luminous Scaling Factor (0.0012)
-
-2. Fiscal Impact (Millions INR)
-Cost is calculated based on the standard HESCOM LT-6 (Commercial/Streetlighting) tariff:
-
-Cost (Million Rupees)​ = E (kWh) × 7.00 / 1,000,000
- 
-3. Environmental Impact (kg CO2)
-
-CO2 = E (kWh) × 0.8 (kg/KWh)
-
-## Data Acquisition: 
-Google Earth Engine (EE) API for the NOAA/VIIRS/DNB/MONTHLY_V1/VCMCFG collection.
-
-Geoprocessing: geemap for administrative boundary blending and temporal GIF compositing.
-
-Data Science: Pandas for time-series aggregation and NumPy for fiscal transformations.
-
-Visualization: Plotly for interactive Spline-Area charts (mimicking ggplot2 aesthetics).
+### Environmental Impact
+Emission Factor: 0.8 kg of CO2 avoided per 1 kWh generated (based on India's coal-heavy grid intensity).
+Sequestration Equivalent: One mature tree absorbs approximately 21 kg of CO2 per year.
 
 ## How to Run
-1. Clone the repository:
-git clone https://github.com/gssanjeev126/Urban-Projects.git
-
-2. Install dependencies:
-pip install earthengine-api geemap pandas plotly
-
+1. Clone the repository: git clone 
+2. Install dependencies
 3. Open the notebook in Google Colab or Jupyter and ensure you have authenticated your Earth Engine account.
 
 ## Citations & Data Sources
-Satellite Data: Earth Observation Group, Payne Institute for Public Policy. VIIRS Nighttime Lights Monthly Average Radiance. (https://eogdata.mines.edu/products/vnl/)
-Boundary Data: Local Municipality Shapefiles / OpenStreetMap (OSM).
-Tariff Source: Hubli Electricity Supply Company Limited (HESCOM) - Schedule of Tariff for FY 2024-25.
+1. Ministry of New and Renewable Energy (MNRE): Operational guidelines for the PM Surya Ghar: Muft Bijli Yojana.
+2. KERC (Karnataka Electricity Regulatory Commission): Tariff orders for HESCOM rooftop solar grid integration.
+3. NASA POWER Data Access Viewer: Historical solar insolation and meteorological parameters for Belagavi coordinates.
+4. IPCC Guidelines for National Greenhouse Gas Inventories: Grid emission factor methodologies for the Indian energy sector.
