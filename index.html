@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-bg: #E0F2FE;
+            --navy-card: #0F172A;
+            --accent-gold: #FBBF24;
+            --success-green: #4ADE80;
+            --co2-teal: #0D9488;
+            --text-slate: #334155;
+        }
+        body { background-color: var(--sky-bg); font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* SIDEBAR (30%) */
+        .sidebar { 
+            width: 30%; background: white; border-right: 1px solid #BAE6FD; 
+            padding: 30px; display: flex; flex-direction: column; box-sizing: border-box; 
+        }
+        
+        /* MAIN STAGE (70%) */
+        .main-stage { 
+            width: 70%; padding: 25px; display: flex; flex-direction: column; 
+            gap: 20px; box-sizing: border-box; 
+        }
+
+        .header-card { background: var(--navy-card); padding: 30px; border-radius: 20px; color: white; }
+        .title { color: var(--accent-gold); font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; }
+        
+        .kpi-row { display: flex; justify-content: space-between; text-align: center; }
+        .kpi-label { font-size: 0.85rem; color: #94A3B8; text-transform: uppercase; font-weight: 600; }
+        .kpi-val { display: block; font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
+
+        .plot-box { background: white; border-radius: 15px; flex: 1; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* SIDEBAR COMPONENTS */
+        .control-section { margin-bottom: 30px; }
+        .env-report-box { 
+            background: #F0FDFA; border: 1.5px solid #CCFBF1; border-radius: 12px; 
+            padding: 20px; margin-top: auto; 
+        }
+        
+        label { font-weight: 700; color: var(--text-slate); text-transform: uppercase; font-size: 0.85rem; display: block; margin-bottom: 10px; }
+        input[type=range] { width: 100%; accent-color: #0284C7; cursor: pointer; }
+        input[type=number], select { 
+            width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 1rem; font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2 style="color: #0369A1; margin-top: 0;">Planner Toolkit</h2>
+    
+    <div class="control-section">
+        <label>Avg. Rooftop Area: <span id="areaDisp" style="color:#0284C7">1200</span> sq.ft</label>
+        <input type="range" id="area" min="500" max="4000" step="50" value="1200" oninput="update()">
+    </div>
+
+    <div class="control-section">
+        <label>Number of Houses</label>
+        <input type="number" id="units" value="1" min="1" step="1" oninput="update()">
+    </div>
+
+    <div class="control-section">
+        <label>Consumption Strategy</label>
+        <select id="strategy" onchange="update()">
+            <option value="0.75" selected>75% (Balanced)</option>
+            <option value="1.00">100% (Full Save)</option>
+        </select>
+    </div>
+
+    <div class="env-report-box">
+        <label style="color: var(--co2-teal); font-size: 1rem;"> Climate Mitigation Impact</label>
+        <div style="margin-top:15px;">
+            <span style="font-size: 0.8rem; color: #555;">TOTAL CO2 REDUCTION:</span>
+            <span id="totalCO2" style="display:block; font-size: 1.8rem; font-weight: 800; color: var(--co2-teal);">0 kg</span>
+        </div>
+        <div style="margin-top:10px; font-size: 0.85rem; color: #64748B;">
+            Equivalent to planting <b id="trees" style="color: #0D9488;">0</b> mature trees per year.
+        </div>
+    </div>
+</div>
+
+<div class="main-stage">
+    <div class="header-card">
+        <div class="title">Project Sun-Drive: <span id="sysKW">0</span> kW Community Audit</div>
+        <div class="kpi-row">
+            <div><span class="kpi-label">Investment (Net)</span><span id="invVal" class="kpi-val" style="color:var(--success-green);">INR 0</span></div>
+            <div><span class="kpi-label">Annual Savings</span><span id="revVal" class="kpi-val">INR 0</span></div>
+            <div><span class="kpi-label">Avg. Payback</span><span id="payVal" class="kpi-val" style="color:var(--accent-gold);">0 Years</span></div>
+        </div>
+    </div>
+
+    <div id="harvestPlot" class="plot-box"></div>
+    <div id="cashflowPlot" class="plot-box"></div>
+</div>
+
+<script>
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const WEIGHTS = [1.15, 1.1, 1.25, 1.15, 1.05, 0.45, 0.35, 0.4, 0.75, 0.95, 1.05, 1.1];
+
+function update() {
+    const area = parseFloat(document.getElementById('area').value);
+    const units = parseInt(document.getElementById('units').value) || 1;
+    const strategy = parseFloat(document.getElementById('strategy').value);
+    document.getElementById('areaDisp').innerText = area;
+
+    // --- COMMUNITY LOGIC ---
+    const kwPerHouse = Math.max(1, Math.floor((area * 0.6) / 100));
+    const annkWhSingle = kwPerHouse * 1400;
+    
+    // Financials (Single Unit for Header)
+    const netInvSingle = (kwPerHouse * 65000) - (kwPerHouse >= 3 ? 78000 : kwPerHouse * 30000);
+    const annRevSingle = annkWhSingle * (strategy * 7.5 + (1 - strategy) * 2.3);
+    
+    // Total Sustainability (Multi-Unit)
+    const totalAnnkWh = annkWhSingle * units;
+    const totalCO2Val = Math.floor(totalAnnkWh * 0.8); // 0.8kg per kWh
+    const treeCount = Math.floor(totalCO2Val / 21); // Avg tree absorbs 21kg/year
+
+    // Update Header & Sidebar
+    document.getElementById('sysKW').innerText = kwPerHouse;
+    document.getElementById('invVal').innerText = "INR " + Math.round(netInvSingle).toLocaleString();
+    document.getElementById('revVal').innerText = "INR " + Math.round(annRevSingle).toLocaleString();
+    document.getElementById('payVal').innerText = (netInvSingle / annRevSingle).toFixed(1) + " Years";
+    
+    document.getElementById('totalCO2').innerText = totalCO2Val.toLocaleString() + " kg";
+    document.getElementById('trees').innerText = treeCount.toLocaleString();
+
+    // --- PLOTS ---
+    const mkWh = WEIGHTS.map(w => Math.floor((annkWhSingle / 12) * w));
+    const mRev = mkWh.map(u => Math.floor(u * (strategy * 7.5 + (1 - strategy) * 2.3)));
+
+    Plotly.newPlot('harvestPlot', [
+        { x: MONTHS, y: mkWh, type: 'bar', name: 'Units (kWh)', marker: {color: '#FBBF24'} },
+        { x: MONTHS, y: mRev, type: 'scatter', name: 'Revenue (INR)', yaxis: 'y2', line: {color: '#059669', width: 3} }
+    ], { 
+        title: { text: '<b>Single House Monthly Performance</b>', font: {size: 16} },
+        yaxis: { title: 'Energy (kWh)' },
+        yaxis2: { title: 'Revenue (INR)', overlaying: 'y', side: 'right', showgrid: false },
+        margin: {t:50, b:40, l:60, r:60},
+        legend: { orientation: 'h', y: -0.2 }
+    }, {responsive: true});
+
+    let years = Array.from({length: 21}, (_, i) => i);
+    let cf = [-netInvSingle];
+    for(let i=1; i<=20; i++) cf.push(Math.floor(cf[i-1] + (annRevSingle * Math.pow(1.02, i))));
+
+    Plotly.newPlot('cashflowPlot', [{
+        x: years, y: cf, fill: 'tozeroy', line: {color: '#0369A1'}, fillcolor: 'rgba(3, 105, 161, 0.1)'
+    }], { 
+        title: { text: '<b>20-Year Individual ROI Projection</b>', font: {size: 16} },
+        yaxis: { title: 'Cumulative Balance (INR)' },
+        margin: {t:50, b:40, l:70, r:40}
+    }, {responsive: true});
+}
+
+update();
+</script>
+</body>
+</html>
